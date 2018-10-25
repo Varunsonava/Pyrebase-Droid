@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "300772471611",
+    "firebase_url": "https://fireblast-c76af.firebaseio.com",
+    "project_id": "fireblast-c76af",
+    "storage_bucket": "fireblast-c76af.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:300772471611:android:980353bd70335fb7",
+        "android_client_info": {
+          "package_name": "mlexpert.tanishqsaluja.fireblast"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "300772471611-a2g786f0emh8omtt18b956cie25n9fkt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "mlexpert.tanishqsaluja.fireblast",
+            "certificate_hash": "affb34350843be32d09b1ce3e6305346ba50f002"
+          }
+        },
+        {
+          "client_id": "300772471611-sthdbti8q2o8hgiire5s024jr6ms5mk8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJqeBi-Tdd2pSeUnY_7nNJz6MZjaTaQNE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "300772471611-sthdbti8q2o8hgiire5s024jr6ms5mk8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
