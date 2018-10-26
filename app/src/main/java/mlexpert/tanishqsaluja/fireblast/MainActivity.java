@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +17,8 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -32,15 +35,16 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     private static final int PICK_VIDEO_REQUEST = 123;
-    private Button buttonChoose, buttonUpload;
+    private static final int START_VIDEO_RECORD = 000;
+    private Button buttonChoose, buttonUpload, buttonCapture;
     private TextView textView;
-    //private EditText editText;
     private Uri filepath;
     private StorageReference mStorageRef;
     private MediaController mediaController;
     private MyVideoView myVideoView;
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference databaseReference;
+    //private FirebaseAuth mAuth;
     private TextToSpeech textToSpeech;
 
     @Override
@@ -50,13 +54,14 @@ public class MainActivity extends AppCompatActivity {
 
         buttonChoose = findViewById(R.id.chooser);
         buttonUpload = findViewById(R.id.upload);
+        buttonCapture = findViewById(R.id.capture);
         myVideoView = findViewById(R.id.myvideo);
         textView = findViewById(R.id.text);
-        //editText = findViewById(R.id.text);
 
         myVideoView.setVideoSize(350, 250);
         mediaController = new MediaController(this);
 
+        //mAuth = FirebaseAuth.getInstance();
         mStorageRef = FirebaseStorage.getInstance().getReference();
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference().child("users");
@@ -67,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent();
                 intent.setType("video/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(intent.createChooser(intent, "Select a video"), PICK_VIDEO_REQUEST);
+                startActivityForResult(intent, PICK_VIDEO_REQUEST);
             }
         });
 
@@ -75,6 +80,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 upload();
+            }
+        });
+
+        buttonCapture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+                intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
+                startActivityForResult(intent, START_VIDEO_RECORD);
             }
         });
 
@@ -125,7 +139,35 @@ public class MainActivity extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        } else if (requestCode == START_VIDEO_RECORD && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            Uri uri = data.getData();
+            StorageReference riversRef = mStorageRef.child("videos/videoTest");
+            final ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.setTitle("Uploading...");
+            progressDialog.show();
 
+            riversRef.putFile(uri)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            // Get a URL to the uploaded content
+                            progressDialog.dismiss();
+                            Toast.makeText(getApplicationContext(), "File Uploaded", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception exception) {
+                            Toast.makeText(getApplicationContext(), exception.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                            double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                            progressDialog.setMessage((int) progress + "% Uploaded...");
+                        }
+                    });
         }
     }
 
@@ -165,4 +207,11 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "File not selected", Toast.LENGTH_SHORT).show();
         }
     }
+   /* @Override
+    public void onStart() {
+        super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+      //  updateUI(currentUser);
+    }*/
 }
